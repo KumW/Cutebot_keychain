@@ -3,4 +3,5 @@
 .vscode/c_cpp_properties.json
 .vscode/launch.json
 .vscode/ipch
-/3Dprinter
+/3Dprinter*
+/cutebot_keychain.code-workspace
