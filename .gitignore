@@ -5,3 +5,4 @@
 .vscode/ipch
 /3Dprinter*
 /cutebot_keychain.code-workspace
+.DS_Store
