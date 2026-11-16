@@ -1,69 +1,47 @@
-#include <Arduino.h>
 #include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 64
-
-#define OLED_RESET    -1
+#define OLED_RESET -1
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
-// 函数前置声明
-void drawNormalEyes();
-void drawBlinkEyes();
-void drawHappyEyes();
+unsigned long lastActionTime = 0;
+int interval = 3000; // 每 3 秒随机换一次表情
 
 void setup() {
   Serial.begin(115200);
-
-  // 初始化 SSD1306 屏幕（I2C 地址通常为 0x3C）
-  if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
-    Serial.println(F("SSD1306 allocation failed"));
-    for(;;);
-  }
-  
+  display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
   display.clearDisplay();
-  display.display();
 }
 
 void loop() {
-  // 状态一：正常睁眼持续 2 秒
-  drawNormalEyes();
-  delay(2000);
-
-  // 状态二：眨眼（快速闭眼 150 毫秒）
-  drawBlinkEyes();
-  delay(150);
-
-  // 状态三：恢复睁眼 1.5 秒
-  drawNormalEyes();
-  delay(1500);
-
-  // 状态四：切换到开心表情 1.5 秒
-  drawHappyEyes();
-  delay(1500);
+  unsigned long currentTime = millis();
+  
+  // 当到达随机时间间隔时，自动切换表情
+  if (currentTime - lastActionTime > interval) {
+    lastActionTime = currentTime;
+    
+    // 生成一个 1 到 4 的随机数，模拟Claude宠物的自主行为
+    int mood = random(1, 5); 
+    
+    display.clearDisplay();
+    switch (mood) {
+      case 1: drawBlinkEyes(); break;   // 眨眼
+      case 2: drawHappyEyes(); break;  // 高兴/笑脸
+      case 3: drawLookingAround(); break; // 左右看
+      case 4: drawSleepyEyes(); break;  // 犯困/闭眼
+    }
+    display.display();
+    
+    // 随机下一次动作的间隔（2秒到6秒不等），显得更有生命力
+    interval = random(2000, 6000); 
+  }
 }
 
-void drawNormalEyes() {
-  display.clearDisplay();
-  display.fillRoundRect(24, 20, 24, 28, 6, SSD1306_WHITE);
-  display.fillRoundRect(80, 20, 24, 28, 6, SSD1306_WHITE);
-  display.display();
-}
-
-void drawBlinkEyes() {
-  display.clearDisplay();
-  display.fillRect(24, 32, 24, 4, SSD1306_WHITE);
-  display.fillRect(80, 32, 24, 4, SSD1306_WHITE);
-  display.display();
-}
-
-void drawHappyEyes() {
-  display.clearDisplay();
-  display.drawLine(24, 36, 36, 24, SSD1306_WHITE);
-  display.drawLine(36, 24, 48, 36, SSD1306_WHITE);
-  display.drawLine(80, 36, 92, 24, SSD1306_WHITE);
-  display.drawLine(92, 24, 104, 36, SSD1306_WHITE);
-  display.display();
-}
+// 各种表情的绘制函数（例如画眼睛、弧线等）...
+void drawBlinkEyes() { /* 绘制眨眼的代码 */ }
+void drawHappyEyes() { /* 绘制笑脸的代码 */ }
+void drawLookingAround() { /* 绘制移动视线的代码 */ }
+void drawSleepyEyes() { /* 绘制睡觉的代码 */ }
